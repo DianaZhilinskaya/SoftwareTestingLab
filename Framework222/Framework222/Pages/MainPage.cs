@@ -3,240 +3,160 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NUnit.Framework;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Support.PageObjects;
-using System.Threading;
+using OpenQA.Selenium.Support;
+using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium.Support.PageObjects;
+using System.Security.Policy;
+using System.Threading;
+using System.Globalization;
 
-namespace _10UnitTests
+namespace FrameworkUnitTest
 {
     class MainPage
     {
-        private const string URL = "http://avia.321.by/";
+        private const string URL = "https://www.cheapair.com/";
         private IWebDriver driver;
+        private WebDriverWait waiter;
 
-        #region Flight mode
-        [FindsBy(How = How.XPath, Using = "//*[@id=\"page\"]/div[1]/div/div/div[1]/div[1]/ul/li[3]/div/ins")]
-        private IWebElement complexFlight;
+        [FindsBy(How = How.XPath, Using = "//*[@id=\"tripTypeContainer\"]/div/label[2]")]
+        public IWebElement Type1;
 
-        [FindsBy(How = How.XPath, Using = "/html/body/div[1]/div[1]/div/div/div[1]/div[1]/ul/li[2]/div/ins")]
-        private IWebElement bothSides;
+        [FindsBy(How = How.XPath, Using = "//*[@id=\"tripTypeContainer\"]/div/label[3]")]
+        public IWebElement Type2;
 
-        [FindsBy(How = How.XPath, Using = "/html/body/div[1]/div[1]/div/div/div[1]/div[1]/ul/li[1]/div/ins")]
-        private IWebElement oneSide;
-        #endregion
+        [FindsBy(How = How.CssSelector, Using = "#cabin > option:nth-child(3)")]
+        public IWebElement Filter1;
 
-        #region Passengers
-        [FindsBy(How = How.XPath, Using = "//*[@id=\"page\"]/div[1]/div/div/div[1]/div[2]/form/div[2]/div/div[2]/div[1]/div[1]/input")]
-        private IWebElement passengerButton;
+        [FindsBy(How = How.Id, Using = "from1")]
+        public IWebElement PlaceFrom;
 
-        [FindsBy(How = How.XPath, Using = "//*[@id=\"page\"]/div[1]/div/div/div[1]/div[2]/form/div[2]/div/div[2]/div[1]/div[2]/div/dl/dd[1]/ul/li[3]/span")]
-        private IWebElement passengerAdult;
+        [FindsBy(How = How.Id, Using = "to1")]
+        public IWebElement PlaceTo;
 
-        [FindsBy(How = How.XPath, Using = "//*[@id=\"page\"]/div[1]/div/div/div[1]/div[2]/form/div[2]/div/div[2]/div[1]/div[2]/div/dl/dd[2]/ul/li[3]/span")]
-        private IWebElement passengerChild;
+        [FindsBy(How = How.Id, Using = "to2")]
+        public IWebElement PlaceTo2;
 
-        [FindsBy(How = How.XPath, Using = "//*[@id=\"page\"]/div[1]/div/div/div[1]/div[2]/form/div[2]/div/div[2]/div[1]/div[2]/div/dl/dd[3]/ul/li[3]/span")]
-        private IWebElement passengerBaby;
+        [FindsBy(How = How.XPath, Using = "//*[@id=\"multiCityContainer\"]/div[3]/span[2]")]
+        public IWebElement AnotherLeg;
 
-        [FindsBy(How = How.XPath, Using = "//*[@id=\"page\"]/div[1]/div/div/div[1]/div[2]/form/div[2]/div/div[2]/div[1]/div[2]/div/dl/dd[3]/ul/li[2]/input")]
-        private IWebElement countBaby;
+        [FindsBy(How = How.CssSelector, Using = "#dates")]
+        public IWebElement Dates;
 
-        [FindsBy(How = How.XPath, Using = "//*[@id=\"page\"]/div[1]/div/div/div[1]/div[2]/form/div[2]/div/div[2]/div[1]/div[2]/div/dl/dd[1]/ul/li[2]/input")]
-        private IWebElement countAdult;
-        #endregion
+        [FindsBy(How = How.XPath, Using = "//*[@id=\"datePickerContainer\"]/div/div[2]/table/tbody/tr[3]/td[1]")]
+        public IWebElement DaysFrom;
 
-        #region Cities
-        [FindsBy(How = How.Id, Using = "from_name")]
-        private IWebElement departureName_first;
+        [FindsBy(How = How.XPath, Using = "//*[@id=\"datePickerContainer\"]/div/div[2]/table/tbody/tr[4]/td[7]")]
+        public IWebElement DaysTo;
 
-      
-        [FindsBy(How = How.Id, Using = "from_name1")]
-        private IWebElement departureName_second;
+        [FindsBy(How = How.XPath, Using = "//*[@id=\"fltSearchForm\"]/button")]
+        public IWebElement Submit;
 
-        [FindsBy(How = How.Id, Using = "to_name")]
-        private IWebElement destinationName_first;
+        [FindsBy(How = How.CssSelector, Using = "#optionsContainer > div > div > div:nth-child(2) > button.btn.btn-close.btn-secondary.trav-select-inc.icn.icn-plus")]
+        public IWebElement PlusSenior;
 
-        [FindsBy(How = How.Id, Using = "to_name1")]
-        private IWebElement destinationName_second;
-        #endregion
-
-        #region Dates
-        [FindsBy(How = How.Id, Using = "departure_date")]
-        private IWebElement departureDate_first;
-
-        [FindsBy(How = How.XPath, Using = "/html/body/div[7]/div[1]/table/tbody/tr[6]/td[1]/a")]
-        private IWebElement calendar_datefirst;
-
-        //for comlex flight mode
-        [FindsBy(How = How.Id, Using = "departure_date1")]
-        private IWebElement departureDate_second;
-
-        [FindsBy(How = How.XPath, Using = "/html/body/div[7]/div[2]/table/tbody/tr[5]/td[4]/a")]
-        private IWebElement calendar_datesecond;
-
-        //for both sides flight mode
-        [FindsBy(How = How.Id, Using = "departure_date_1")]
-        private IWebElement departureDateForBothSides;
-
-        [FindsBy(How = How.XPath, Using = "/html/body/div[7]/div[1]/table/tbody/tr[5]/td[7]/a")]
-        private IWebElement dpartureDate_seocnd_30;
-
-        [FindsBy(How = How.XPath, Using = "/html/body/div[7]/div[1]/table/tbody/tr[1]/td[6]/span")]
-        private IWebElement departureDateInThePast;
-        #endregion
-
-        [FindsBy(How = How.XPath, Using = "/html/body/div[3]/div[2]/p")]
-        private IWebElement SearchError;
-
-        [FindsBy(How = How.ClassName, Using = "search_button")]
-        private IWebElement searchButton;
+        [FindsBy(How = How.CssSelector, Using = "#optionsContainer > div > div > div:nth-child(3) > button.btn.btn-close.btn-secondary.trav-select-inc.icn.icn-plus")]
+        public IWebElement PlusChild;
 
         public MainPage(IWebDriver driver)
         {
             this.driver = driver;
             PageFactory.InitElements(this.driver, this);
+            waiter = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
         }
 
         public void OpenPage()
         {
             driver.Navigate().GoToUrl(URL);
-        }
-
-        public void SelectComplexFlight()
-        {
-            complexFlight.Click();
-        }
-
-        public void SelectOneSideFlight()
-        {
-            oneSide.Click();
+            waiter.Until(ExpectedConditions.ElementExists(By.CssSelector("#fltSearchContainer")));
         }
 
         public void ClickOnSearchTickets()
         {
-            searchButton.Click();
+            Submit.Click();
         }
 
-        public void InsertFirstTrip(string departure, string destination)
+        public void InsertDeparturePlace(string departure)
         {
-            departureName_first.Clear();
-            destinationName_first.Clear();
-            departureName_first.SendKeys(departure);
-            destinationName_first.SendKeys(destination);
+            PlaceFrom.Clear();
+            PlaceFrom.SendKeys(departure);
+            PlaceFrom.Click();
         }
 
-        public void InsertSecondTrip(string departure, string destination)
+        public void InsertDestinationPlace(string destination)
         {
-            departureName_second.Clear();
-            destinationName_second.Clear();
-            departureName_second.SendKeys(departure);
-            destinationName_second.SendKeys(destination);
+            PlaceTo.Clear();
+            PlaceTo.SendKeys(destination);
+            PlaceTo.Click();
         }
 
-
-
-        public void ChooseFirstTripDate()
+        public void InsertDestination2Place(string destination)
         {
-            System.Threading.Thread.Sleep(1000);
-            IWait<IWebDriver> wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
-            wait.Until(ExpectedConditions.ElementIsVisible(By.Id("departure_date")));
-            departureDate_first.Click();
-            wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//html/body/div[7]/div[1]/table/tbody/tr[6]/td[1]/a")));
-            System.Threading.Thread.Sleep(1000);
-            calendar_datefirst.Click();
+            PlaceTo2.Clear();
+            PlaceTo2.SendKeys(destination);
+            PlaceTo2.Click();
         }
 
-        public void ChooseSecondTripDate()
+        public void SetType(Types type)
         {
-          // System.Threading.Thread.Sleep(1000);
-            IWait<IWebDriver> wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
-            wait.Until(ExpectedConditions.ElementIsVisible(By.Id("departure_date1")));
-            departureDate_second.Click();
-            wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[7]/div[2]/table/tbody/tr[5]/td[4]/a")));
-          //  System.Threading.Thread.Sleep(1000);
-            calendar_datesecond.Click();
+            switch (type)
+            {
+                case Types.OneWay:
+                    Type1.Click();
+                    break;
+                case Types.Transfer:
+                    Type2.Click();
+                    break;
+            }
+        }
+
+        public enum Types
+        {
+            OneWay,
+            Transfer
+        }
+
+        public void AddLeg()
+        {
+            AnotherLeg.Click();
         }
         
-        public void ClickPassengersMenu()
+        public void ToCalendar()
         {
-            passengerButton.Click();
-        }
-        public void SelectPassengerAdult()
-        {
-            passengerAdult.Click();
+            Dates.Click();
         }
 
-        public void SelectPassengerChild()
+        public void ChooseTripDateFrom()
         {
-            passengerChild.Click();
+            waiter.Until(ExpectedConditions.ElementToBeClickable(DaysFrom));
+            DaysFrom.Click();
         }
 
-        public void SelectPassengerBaby()
+        public void ChooseTripDateTo()
         {
-            IWait<IWebDriver> wait = new WebDriverWait(driver, TimeSpan.FromSeconds(3));
-            wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//*[@id=\"page\"]/div[1]/div/div/div[1]/div[2]/form/div[2]/div/div[2]/div[1]/div[2]/div/dl/dd[3]/ul/li[3]/span")));
-            passengerBaby.Click();
-        }
-           
-        public string GetCountBaby()
-        {
-            string count = countBaby.GetAttribute("value");
-            return count;
+            waiter.Until(ExpectedConditions.ElementToBeClickable(DaysTo));
+            DaysTo.Click();
         }
 
-        public void SelectBothSides()
+        public void SetBusinessType()
         {
-            bothSides.Click();
+            waiter.Until(ExpectedConditions.ElementToBeClickable(Filter1));
+            Filter1.Click();
         }
 
-        public string GetCountAdult()
+        public void AddChild()
         {
-            string count = countAdult.GetAttribute("value");
-            return count;
+            waiter.Until(ExpectedConditions.ElementToBeClickable(PlusChild));
+            PlusChild.Click();
         }
 
-       public bool SelectDatesForBothSides()
+        public void AddSenior()
         {
-            departureDate_first.Click();
-            calendar_datefirst.Click();
-            departureDateForBothSides.Click();
-            try
-            {
-                dpartureDate_seocnd_30.Click();
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-
-        public bool SelectDateInThePast()
-        {
-            departureDate_first.Click();
-            try
-            {
-                departureDateInThePast.Click();
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-        public string GetFirstCity()
-        {
-            return departureName_first.GetAttribute("value");
-        }
-
-        public string GetSecondCity()
-        {
-            return destinationName_first.GetAttribute("value");
-        }
-        public string GetErrorMessage()
-        {
-            return SearchError.Text.ToString();
+            waiter.Until(ExpectedConditions.ElementToBeClickable(PlusSenior));
+            PlusSenior.Click();
         }
     }
 }
